@@ -54,9 +54,7 @@ Firebase CLI installed.
 A Firebase project set up in the Firebase Console.
 
 Steps
-Clone the repository:
 
-git clone https://github.com/your-username/your-repo-name.git
 cd notes_app
 
 Install Flutter dependencies:
