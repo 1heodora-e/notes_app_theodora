@@ -6,11 +6,9 @@ import 'package:notes_app/repositories/notes_repository.dart';
 import 'dart:async';
 
 class NotesCubit extends Cubit<NotesState> {
-
   final NotesRepository _notesRepository;
   StreamSubscription? _notesSubscription;
 
-  // MODIFIED CONSTRUCTOR: Now requires a NotesRepository
   NotesCubit(this._notesRepository) : super(NotesInitial());
 
   Future<void> listenToNotes(String userId) async {
@@ -19,10 +17,9 @@ class NotesCubit extends Cubit<NotesState> {
 
     emit(NotesLoading());
     try {
-      // Use the repository to get the stream
       _notesSubscription = _notesRepository.getNotesStream(userId).listen(
             (notes) {
-          emit(NotesLoaded(notes));
+          emit(NotesLoaded(notes)); // This keeps the list updated
         },
         onError: (error) {
           emit(NotesError('Failed to listen to notes: ${error.toString()}'));
@@ -41,8 +38,13 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> addNote(String userId, String title, String content) async {
     try {
-      // Use the repository to add the note
       await _notesRepository.addNote(userId, title, content);
+      // Emit success, then immediately re-emit the current notes state
+      // to ensure the list is displayed correctly after the action.
+      emit(const NotesActionSuccess('Note added successfully!')); // <--- NEW LINE
+      if (state is NotesLoaded) { // Only re-emit NotesLoaded if we were already in that state
+        emit(NotesLoaded((state as NotesLoaded).notes));
+      }
     } catch (e) {
       emit(NotesError('Failed to add note: ${e.toString()}'));
     }
@@ -50,8 +52,12 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> updateNote(String noteId, String newTitle, String newContent) async {
     try {
-      // Use the repository to update the note
       await _notesRepository.updateNote(noteId, newTitle, newContent);
+      // Emit success, then immediately re-emit the current notes state
+      emit(const NotesActionSuccess('Note updated successfully!')); // <--- NEW LINE
+      if (state is NotesLoaded) {
+        emit(NotesLoaded((state as NotesLoaded).notes));
+      }
     } catch (e) {
       emit(NotesError('Failed to update note: ${e.toString()}'));
     }
@@ -59,8 +65,12 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> deleteNote(String noteId) async {
     try {
-      // Use the repository to delete the note
       await _notesRepository.deleteNote(noteId);
+      // Emit success, then immediately re-emit the current notes state
+      emit(const NotesActionSuccess('Note deleted successfully!')); // <--- NEW LINE
+      if (state is NotesLoaded) {
+        emit(NotesLoaded((state as NotesLoaded).notes));
+      }
     } catch (e) {
       emit(NotesError('Failed to delete note: ${e.toString()}'));
     }

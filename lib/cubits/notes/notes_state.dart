@@ -1,6 +1,6 @@
 // lib/cubits/notes/notes_state.dart
 import 'package:equatable/equatable.dart';
-import 'package:notes_app/models/note.dart'; // Import your Note model
+import 'package:notes_app/models/note.dart';
 
 abstract class NotesState extends Equatable {
   const NotesState();
@@ -31,10 +31,12 @@ class NotesError extends NotesState {
   List<Object> get props => [message];
 }
 
-// Add states for specific operations if needed, e.g.,
-// class NoteAdding extends NotesState {}
-// class NoteAdded extends NotesState {}
-// class NoteDeleting extends NotesState {}
-// class NoteDeleted extends NotesState {}
-// class NoteUpdating extends NotesState {}
-// class NoteUpdated extends NotesState {}
+
+class NotesActionSuccess extends NotesState {
+  final String message;
+
+  const NotesActionSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
