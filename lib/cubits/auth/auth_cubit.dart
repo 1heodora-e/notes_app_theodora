@@ -1,89 +1,64 @@
 // lib/cubits/auth/auth_cubit.dart
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // For Firebase Auth
-import 'package:notes_app/cubits/auth/auth_state.dart'; // Your custom states
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:notes_app/cubits/auth/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(AuthInitial()); // Initial state is AuthInitial
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
-    emit(AuthLoading()); // Emit loading state
+  AuthCubit() : super(AuthInitial());
 
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    emit(AuthLoading());
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      // If successful, emit AuthSuccess with the user's UID
-      emit(AuthSuccess(userCredential.user!));
-    } on FirebaseAuthException catch (e) {
-      // Catch specific Firebase Auth errors
-      String errorMessage;
-      switch (e.code) {
-        case 'user-not-found':
-          errorMessage = 'No user found for that email.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Wrong password provided for that user.';
-          break;
-        case 'invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        case 'user-disabled':
-          errorMessage = 'This user has been disabled.';
-          break;
-        default:
-          errorMessage = 'An authentication error occurred: ${e.message}';
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      emit(AuthSuccess(_auth.currentUser!));
+    } on FirebaseAuthException catch (e) { // <--- CATCH SPECIFIC FIREBASEAUTHEXCEPTIONS
+      String errorMessage = 'An unknown error occurred.';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided for that user.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'The email address is badly formatted.';
+      } else if (e.code == 'network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
       }
-      emit(AuthError(errorMessage)); // Emit error state with message
+      emit(AuthError(errorMessage));
     } catch (e) {
-      // Catch any other unexpected errors
-      emit(AuthError('An unexpected error occurred: $e'));
+      emit(AuthError('Failed to sign in: ${e.toString()}'));
     }
   }
 
   Future<void> createUserWithEmailAndPassword(String email, String password) async {
-    emit(AuthLoading()); // Emit loading state
-
+    emit(AuthLoading());
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      // If successful, emit AuthSuccess with the user's UID
-      emit(AuthSuccess(userCredential.user!));
-    } on FirebaseAuthException catch (e) {
-      // Catch specific Firebase Auth errors
-      String errorMessage;
-      switch (e.code) {
-        case 'weak-password':
-          errorMessage = 'The password provided is too weak.';
-          break;
-        case 'email-already-in-use':
-          errorMessage = 'The account already exists for that email.';
-          break;
-        case 'invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        default:
-          errorMessage = 'An authentication error occurred: ${e.message}';
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      emit(AuthSuccess(_auth.currentUser!));
+    } on FirebaseAuthException catch (e) { // <--- CATCH SPECIFIC FIREBASEAUTHEXCEPTIONS
+      String errorMessage = 'An unknown error occurred.';
+      if (e.code == 'weak-password') {
+        errorMessage = 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        errorMessage = 'The account already exists for that email.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'The email address is badly formatted.';
+      } else if (e.code == 'network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
       }
-      emit(AuthError(errorMessage)); // Emit error state with message
+      emit(AuthError(errorMessage));
     } catch (e) {
-      // Catch any other unexpected errors
-      emit(AuthError('An unexpected error occurred: $e'));
+      emit(AuthError('Failed to create user: ${e.toString()}'));
     }
   }
 
-  // Optional: Add a sign out method
   Future<void> signOut() async {
+    emit(AuthLoading());
     try {
       await _auth.signOut();
-      emit(AuthInitial()); // Go back to initial state after sign out
+      emit(AuthInitial()); // Go back to initial state after logout
     } catch (e) {
-      emit(AuthError('Failed to sign out: $e'));
+      emit(AuthError('Failed to sign out: ${e.toString()}'));
     }
   }
 }

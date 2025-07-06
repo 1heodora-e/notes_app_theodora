@@ -1,9 +1,9 @@
 // lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // <--- NEW IMPORT
-import 'package:notes_app/cubits/auth/auth_cubit.dart'; // <--- NEW IMPORT
-import 'package:notes_app/cubits/auth/auth_state.dart'; // <--- NEW IMPORT
-// Don't import NotesScreen here, AuthFlowHandler in main.dart handles navigation
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes_app/cubits/auth/auth_cubit.dart';
+import 'package:notes_app/cubits/auth/auth_state.dart';
+
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
