@@ -1,31 +1,24 @@
-
+// lib/repositories/firestore_notes_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:notes_app/models/note.dart';
-import 'package:notes_app/repositories/notes_repository.dart';
+import 'package:notes_app/repositories/notes_repository.dart'; // Ensure this import is correct
 
 class FirestoreNotesRepository implements NotesRepository {
   final FirebaseFirestore _firestore;
 
+  // Constructor must be public and callable
   FirestoreNotesRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Stream<List<Note>> getNotesStream(String userId) {
-    print('FirestoreNotesRepository: Setting up notes stream for userId: $userId');
     return _firestore
         .collection('notes')
         .where('userId', isEqualTo: userId)
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((querySnapshot) {
-      print('FirestoreNotesRepository: Received new query snapshot! Docs count: ${querySnapshot.docs.length}');
-      for (var doc in querySnapshot.docs) {
-        print('  Doc ID: ${doc.id}, Data: ${doc.data()}');
-      }
-      final notes = querySnapshot.docs.map((doc) => Note.fromFirestore(doc)).toList();
-      print('FirestoreNotesRepository: Converted notes list length: ${notes.length}');
-      return notes;
-    });
+        .map((querySnapshot) =>
+        querySnapshot.docs.map((doc) => Note.fromFirestore(doc)).toList());
   }
 
   @override

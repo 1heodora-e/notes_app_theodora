@@ -1,6 +1,6 @@
-
+// lib/cubits/notes/notes_state.dart
 import 'package:equatable/equatable.dart';
-import 'package:notes_app/models/note.dart';
+import 'package:notes_app/models/note.dart'; // Ensure this import path is correct
 
 abstract class NotesState extends Equatable {
   const NotesState();
@@ -30,7 +30,6 @@ class NotesError extends NotesState {
   @override
   List<Object> get props => [message];
 }
-
 
 class NotesActionSuccess extends NotesState {
   final String message;

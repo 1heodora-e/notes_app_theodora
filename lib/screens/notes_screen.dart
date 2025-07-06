@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notes_app/cubits/auth/auth_cubit.dart';
 import 'package:notes_app/cubits/notes/notes_cubit.dart';
 import 'package:notes_app/cubits/notes/notes_state.dart';
-import 'package:notes_app/models/note.dart';
+import 'package:notes_app/models/note.dart'; // Ensure this import is correct
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -40,9 +40,6 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // THIS PRINT STATEMENT IS CRUCIAL FOR DEBUGGING THE UI REBUILD
-    print('NotesScreen: Builder called. Current state: ${context.watch<NotesCubit>().state}');
-
     return BlocConsumer<NotesCubit, NotesState>(
       listener: (context, state) {
         if (state is NotesError) {
@@ -51,7 +48,16 @@ class _NotesScreenState extends State<NotesScreen> {
           _showSnackBar(context, state.message);
         }
       },
+      // IMPORTANT: buildWhen controls when the builder function rebuilds the UI
+      buildWhen: (previousState, currentState) {
+        // Only rebuild the UI if the current state is NotesLoaded, NotesLoading, or NotesError.
+        // This prevents the UI from briefly showing an empty state or
+        // flickering when NotesActionSuccess is emitted, as NotesActionSuccess
+        // is handled by the listener, not by rebuilding the main body.
+        return currentState is NotesLoaded || currentState is NotesLoading || currentState is NotesError;
+      },
       builder: (context, state) {
+        // The builder only gets states that pass the buildWhen condition
         return Scaffold(
           appBar: AppBar(
             title: const Text('My Notes'),
@@ -74,7 +80,7 @@ class _NotesScreenState extends State<NotesScreen> {
             itemBuilder: (context, index) {
               final note = state.notes[index];
               return Card(
-                key: ValueKey(note.id), // <--- ADDED THIS KEY
+                key: ValueKey(note.id), // Crucial for list optimization
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: ListTile(
                   title: Text(note.title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -119,9 +125,9 @@ class _NotesScreenState extends State<NotesScreen> {
               );
             },
           )
-              : state is NotesError
+              : state is NotesError // Handle NotesError if it's the current state
               ? Center(child: Text('Error: ${state.message}'))
-              : const Center(child: Text('Press the + button to add your first note!')),
+              : const Center(child: Text('Press the + button to add your first note!')), // Default fallback
 
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showNoteDialog(context),

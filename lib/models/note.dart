@@ -18,13 +18,14 @@ class Note extends Equatable {
   });
 
   factory Note.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>?;
+
     return Note(
       id: doc.id,
-      userId: data['userId'] as String,
-      title: data['title'] as String,
-      content: data['content'] as String,
-      timestamp: data['timestamp'] as Timestamp,
+      userId: (data?['userId'] as String?) ?? '',
+      title: (data?['title'] as String?) ?? '',
+      content: (data?['content'] as String?) ?? '',
+      timestamp: (data?['timestamp'] as Timestamp?) ?? Timestamp.now(),
     );
   }
 
