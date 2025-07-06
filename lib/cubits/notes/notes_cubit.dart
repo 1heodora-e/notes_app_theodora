@@ -1,4 +1,4 @@
-// lib/cubits/notes/notes_cubit.dart
+
 import 'package:bloc/bloc.dart';
 import 'package:notes_app/cubits/notes/notes_state.dart';
 import 'package:notes_app/models/note.dart';

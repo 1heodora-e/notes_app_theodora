@@ -1,4 +1,4 @@
-// lib/cubits/notes/notes_state.dart
+
 import 'package:equatable/equatable.dart';
 import 'package:notes_app/models/note.dart';
 
