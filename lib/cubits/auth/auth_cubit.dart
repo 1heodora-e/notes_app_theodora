@@ -13,7 +13,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       emit(AuthSuccess(_auth.currentUser!));
-    } on FirebaseAuthException catch (e) { // <--- CATCH SPECIFIC FIREBASEAUTHEXCEPTIONS
+    } on FirebaseAuthException catch (e) {
       String errorMessage = 'An unknown error occurred.';
       if (e.code == 'user-not-found') {
         errorMessage = 'No user found for that email.';
@@ -35,7 +35,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
       emit(AuthSuccess(_auth.currentUser!));
-    } on FirebaseAuthException catch (e) { // <--- CATCH SPECIFIC FIREBASEAUTHEXCEPTIONS
+    } on FirebaseAuthException catch (e) {
       String errorMessage = 'An unknown error occurred.';
       if (e.code == 'weak-password') {
         errorMessage = 'The password provided is too weak.';
@@ -56,7 +56,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       await _auth.signOut();
-      emit(AuthInitial()); // Go back to initial state after logout
+      emit(AuthInitial());
     } catch (e) {
       emit(AuthError('Failed to sign out: ${e.toString()}'));
     }

@@ -17,7 +17,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoginMode = true; // To toggle between login and signup
-  bool _isLoading = false; // To manage local loading state (though Cubit will handle global)
+
 
   @override
   void dispose() {
